@@ -1,0 +1,14 @@
+.cvh-wrap {
+  display: flex;
+  gap: 40px;
+}
+.chv-cell {
+  display: flex;
+  gap: 4px;
+}
+.cvh-title {
+  font-weight: bold;
+}
+.cvh-quarter-hours-left {
+  direction: ltr;
+}
