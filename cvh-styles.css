@@ -12,3 +12,9 @@
 .cvh-quarter-hours-left {
   direction: ltr;
 }
+.month-bg {
+  background-color: #ccddff;
+}
+.quarter-bg {
+  background-color: rgb(250, 231, 190);
+}

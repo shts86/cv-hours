@@ -1,0 +1,2 @@
+- report sick or holiday on halfday work remove full day hours
+- meanHours not calculate the current day hours even when the hours has been reported

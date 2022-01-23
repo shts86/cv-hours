@@ -13,7 +13,7 @@ const endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
 const beginOfQuarter = moment().startOf('quarter').format('YYYY-MM-DD');
 const endOfQuarter = moment().endOf('quarter').format('YYYY-MM-DD');
 const fullDayHours = 8.8,
-  halfDayHours = 4.4;
+  halfDayHours = fullDayHours / 2;
 
 //month call
 $.ajax({
@@ -54,19 +54,23 @@ $.ajax({
 function calculateMonthlyHours(data) {
   let totalHours = 0,
     currentHours = 0,
-    workingDaysCounter = 0;
+    meanHours = 0,
+    currentWorkingDays = 0;
+  totalWorkingDays = 0;
 
-  data.forEach(el => {
+  data.forEach(day => {
     // console.log(el);
-    el.hourReports
+    day.hourReports
       .filter(r => !!r.startTime && !!r.endTime)
       .forEach(rep => {
         const hours = moment(rep.endTime).diff(
+          // calculate how many hours for this day
           moment(rep.startTime),
           'hours',
           true
         );
         currentHours += hours;
+
         // if the user was on day off
         if (
           rep.reportTypeId === 3 ||
@@ -80,31 +84,42 @@ function calculateMonthlyHours(data) {
         }
       });
 
-    if (el.isRequireReport) {
-      workingDaysCounter++;
+    if (day.hourReports.length && !moment(day.date).isSame(new Date(), 'day')) {
+      // !moment(day.date).isSame(new Date(), "day") = not today
+      currentWorkingDays++;
     }
-    if (el.holidayType === 'NoHoliday') {
+
+    if (day.isRequireReport) {
+      totalWorkingDays++;
+    }
+    if (day.holidayType === 'NoHoliday') {
       totalHours += fullDayHours;
     }
-    if (el.holidayType === 'HalfHoliday') {
+    if (day.holidayType === 'HalfHoliday') {
       totalHours += halfDayHours;
     }
   });
 
-  // console.log(moment().format());
+  meanHours =
+    (totalHours - currentHours) / (totalWorkingDays - currentWorkingDays);
+
+  console.log('halfDayHours: ', halfDayHours);
   // console.log('totaHours: ', totalHours, 'currentHours: ', currentHours);
   $('.cvh-current-hours').text(currentHours.toFixed(2));
+  $('.cvh-mean-hours').text(meanHours.toFixed(2));
   $('.cvh-total-hours').text(totalHours.toFixed(2));
   $('.cvh-monthly-hours-left').text((totalHours - currentHours).toFixed(2));
 }
 
-function calculateQuarterHours(data) {
+function calculateQuarterHours(month) {
   let totalHours = 540,
     currentHours = 0;
+  (meanHours = 0), (currentWorkingDays = 0);
+  totalWorkingDays = 0;
 
-  data.forEach(el => {
+  month.forEach(day => {
     // console.log(el);
-    el.hourReports
+    day.hourReports
       .filter(r => !!r.startTime && !!r.endTime)
       .forEach(rep => {
         const hours = moment(rep.endTime).diff(
@@ -114,33 +129,59 @@ function calculateQuarterHours(data) {
         );
         currentHours += hours;
       });
+
+    if (day.hourReports.length && !moment(day.date).isSame(new Date(), 'day')) {
+      // !moment(day.date).isSame(new Date(), "day") = not today
+      currentWorkingDays++;
+    }
+
+    if (day.isRequireReport) {
+      totalWorkingDays++;
+    }
   });
+
+  meanHours =
+    (totalHours - currentHours) / (totalWorkingDays - currentWorkingDays);
+
   $('.cvh-quarter-current-hours').text(currentHours.toFixed(2));
+  $('.cvh-quarter-mean-hours').text(meanHours.toFixed(2));
   $('.cvh-quarter-hours-left').text((totalHours - currentHours).toFixed(2));
 }
 
 $('.full-height.desktop-main').prepend(
   $(`
   <div class="cvh-wrap">
-    <div class="chv-cell">
-      <div class="cvh-title">שעות שנעשו החודש:&nbsp;</div>
-      <div class="cvh-current-hours"></div>
+    <div class="cvh-wrap month-bg">
+      <div class="chv-cell">
+        <div class="cvh-title">שעות שנעשו החודש:&nbsp;</div>
+        <div class="cvh-current-hours"></div>
+      </div>
+      <div class="chv-cell">
+        <div class="cvh-title">ממוצע יומי חודשי דרוש:&nbsp;</div>
+        <div class="cvh-mean-hours"></div>
+      </div>
+      <div class="chv-cell">
+        <div class="cvh-title">דרישה חודשית:&nbsp;</div>
+        <div class="cvh-total-hours"></div>
+      </div>
+      <div class="chv-cell">
+        <div class="cvh-title">שעות חודשיות שנשארו:&nbsp;</div>
+        <div class="cvh-monthly-hours-left"></div>
+      </div>
     </div>
-    <div class="chv-cell">
-      <div class="cvh-title">דרישה חודשית:&nbsp;</div>
-      <div class="cvh-total-hours"></div>
-    </div>
-    <div class="chv-cell">
-      <div class="cvh-title">שעות חודשיות שנשארו:&nbsp;</div>
-      <div class="cvh-monthly-hours-left"></div>
-    </div>
-    <div class="chv-cell">
-      <div class="cvh-title">שעות שנעשו הרבעון:&nbsp;</div>
-      <div class="cvh-quarter-current-hours"></div>
-    </div>
-    <div class="chv-cell">
-      <div class="cvh-title">שעות רבעוניות שנשארו:&nbsp;</div>
-      <div class="cvh-quarter-hours-left"></div>
+    <div class="cvh-wrap quarter-bg">
+      <div class="chv-cell">
+        <div class="cvh-title">שעות שנעשו הרבעון:&nbsp;</div>
+        <div class="cvh-quarter-current-hours"></div>
+      </div>
+      <div class="chv-cell">
+        <div class="cvh-title">ממוצע יומי רבעוני דרוש:&nbsp;</div>
+        <div class="cvh-quarter-mean-hours"></div>
+      </div>
+      <div class="chv-cell">
+        <div class="cvh-title">שעות רבעוניות שנשארו:&nbsp;</div>
+        <div class="cvh-quarter-hours-left"></div>
+      </div>
     </div>
   </div>`)
 );
