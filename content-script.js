@@ -52,11 +52,13 @@ $.ajax({
 });
 
 function calculateMonthlyHours(data) {
-  let totalHours = 0,
+  let totalRequireHours = 0,
+    requireHours = 0,
     currentHours = 0,
     meanHours = 0,
-    currentWorkingDays = 0;
-  totalWorkingDays = 0;
+    currentWorkingDays = 0,
+    jobPercent = 0,
+    totalWorkingDays = 0;
 
   data.forEach(day => {
     // console.log(el);
@@ -77,10 +79,10 @@ function calculateMonthlyHours(data) {
           rep.reportTypeId === 5 ||
           rep.reportTypeId === 6
         ) {
-          totalHours -= fullDayHours;
+          currentHours += fullDayHours;
         }
         if (rep.reportTypeId === 4) {
-          totalHours -= halfDayHours;
+          currentHours += halfDayHours;
         }
       });
 
@@ -93,26 +95,38 @@ function calculateMonthlyHours(data) {
       totalWorkingDays++;
     }
     if (day.holidayType === 'NoHoliday') {
-      totalHours += fullDayHours;
+      totalRequireHours += fullDayHours;
+      if (moment(day.date).isBefore(new Date(), 'day')) {
+        requireHours += fullDayHours;
+      }
     }
     if (day.holidayType === 'HalfHoliday') {
-      totalHours += halfDayHours;
+      totalRequireHours += halfDayHours;
+      if (moment(day.date).isBefore(new Date(), 'day')) {
+        requireHours += halfDayHours;
+      }
     }
   });
 
   meanHours =
-    (totalHours - currentHours) / (totalWorkingDays - currentWorkingDays);
+    (totalRequireHours - currentHours) /
+    (totalWorkingDays - currentWorkingDays);
+  jobPercent = (currentHours / requireHours) * 100;
 
-  console.log('halfDayHours: ', halfDayHours);
-  // console.log('totaHours: ', totalHours, 'currentHours: ', currentHours);
+  // console.log('todayRequireHours: ', requireHours);
+  // console.log('totalRequireHours: ', totalRequireHours);
+  // console.log('currentHours: ', currentHours);
   $('.cvh-current-hours').text(currentHours.toFixed(2));
   $('.cvh-mean-hours').text(meanHours.toFixed(2));
-  $('.cvh-total-hours').text(totalHours.toFixed(2));
-  $('.cvh-monthly-hours-left').text((totalHours - currentHours).toFixed(2));
+  $('.cvh-total-hours').text(totalRequireHours.toFixed(2));
+  $('.cvh-monthly-job-percent').text(jobPercent.toFixed(0) + '%');
 }
 
 function calculateQuarterHours(month) {
-  let totalHours = 540,
+  let totalRequireHours = 0,
+    requireHours = 0,
+    bonus = 540,
+    bonusHours = 0,
     currentHours = 0;
   (meanHours = 0), (currentWorkingDays = 0);
   totalWorkingDays = 0;
@@ -138,20 +152,39 @@ function calculateQuarterHours(month) {
     if (day.isRequireReport) {
       totalWorkingDays++;
     }
+    if (day.holidayType === 'NoHoliday') {
+      totalRequireHours += fullDayHours;
+      if (moment(day.date).isBefore(new Date(), 'day')) {
+        requireHours += fullDayHours;
+      }
+    }
+    if (day.holidayType === 'HalfHoliday') {
+      totalRequireHours += halfDayHours;
+      if (moment(day.date).isBefore(new Date(), 'day')) {
+        requireHours += halfDayHours;
+      }
+    }
   });
 
+  bonusHours = Math.min(bonus, totalRequireHours);
   meanHours =
-    (totalHours - currentHours) / (totalWorkingDays - currentWorkingDays);
+    (bonusHours - currentHours) / (totalWorkingDays - currentWorkingDays);
+  jobPercent = (currentHours / requireHours) * 100;
 
+  $('.cvh-quarter-total-hours').text(bonusHours.toFixed(2));
   $('.cvh-quarter-current-hours').text(currentHours.toFixed(2));
   $('.cvh-quarter-mean-hours').text(meanHours.toFixed(2));
-  $('.cvh-quarter-hours-left').text((totalHours - currentHours).toFixed(2));
+  // $('.cvh-quarter-job-percent').text(jobPercent.toFixed(2));
 }
 
 $('.full-height.desktop-main').prepend(
   $(`
   <div class="cvh-wrap">
     <div class="cvh-wrap month-bg">
+    <div class="chv-cell">
+      <div class="cvh-title">דרישה חודשית:&nbsp;</div>
+      <div class="cvh-total-hours"></div>
+    </div>
       <div class="chv-cell">
         <div class="cvh-title">שעות שנעשו החודש:&nbsp;</div>
         <div class="cvh-current-hours"></div>
@@ -161,15 +194,15 @@ $('.full-height.desktop-main').prepend(
         <div class="cvh-mean-hours"></div>
       </div>
       <div class="chv-cell">
-        <div class="cvh-title">דרישה חודשית:&nbsp;</div>
-        <div class="cvh-total-hours"></div>
-      </div>
-      <div class="chv-cell">
-        <div class="cvh-title">שעות חודשיות שנשארו:&nbsp;</div>
-        <div class="cvh-monthly-hours-left"></div>
+        <div class="cvh-title">אחוז משרה כרגע:&nbsp;</div>
+        <div class="cvh-monthly-job-percent"></div>
       </div>
     </div>
     <div class="cvh-wrap quarter-bg">
+    <div class="chv-cell">
+      <div class="cvh-title">דרישה רבעונית:&nbsp;</div>
+      <div class="cvh-quarter-total-hours"></div>
+    </div>
       <div class="chv-cell">
         <div class="cvh-title">שעות שנעשו הרבעון:&nbsp;</div>
         <div class="cvh-quarter-current-hours"></div>
@@ -179,8 +212,8 @@ $('.full-height.desktop-main').prepend(
         <div class="cvh-quarter-mean-hours"></div>
       </div>
       <div class="chv-cell">
-        <div class="cvh-title">שעות רבעוניות שנשארו:&nbsp;</div>
-        <div class="cvh-quarter-hours-left"></div>
+        <div class="cvh-title">אחוז לבונוס:&nbsp;</div>
+        <div class="cvh-quarter-job-percent"></div>
       </div>
     </div>
   </div>`)
