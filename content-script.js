@@ -211,10 +211,6 @@ $('.full-height.desktop-main').prepend(
         <div class="cvh-title">ממוצע יומי רבעוני דרוש:&nbsp;</div>
         <div class="cvh-quarter-mean-hours"></div>
       </div>
-      <div class="chv-cell">
-        <div class="cvh-title">אחוז לבונוס:&nbsp;</div>
-        <div class="cvh-quarter-job-percent"></div>
-      </div>
     </div>
   </div>`)
 );
