@@ -1,6 +1,7 @@
 /*
 report id:
 1- hours report
+2- general day off - add only by admin
 3- holiday
 4- half holyday
 5- resurve duty
@@ -91,6 +92,14 @@ function calculateMonthlyHours(data) {
         }
         if (rep.reportTypeId === 4) {
           currentHours += halfDayHours;
+        }
+        if (rep.reportTypeId === 2) {
+          if (day.holidayType === 'NoHoliday') {
+            currentHours += fullDayHours;
+          }
+          if (day.holidayType === 'HalfHoliday') {
+            currentHours += halfDayHours;
+          }
         }
       });
 
