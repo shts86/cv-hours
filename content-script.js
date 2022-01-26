@@ -20,7 +20,7 @@ function hourFormat(time) {
   const hours = Math.floor(dur.asHours());
   const mins = Math.floor(dur.asMinutes()) - hours * 60;
 
-  return hours + ':' + mins;
+  return hours + ':' + (mins < 10 ? '0' + mins : mins);
 }
 
 //month call
