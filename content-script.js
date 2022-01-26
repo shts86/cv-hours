@@ -15,6 +15,14 @@ const endOfQuarter = moment().endOf('quarter').format('YYYY-MM-DD');
 const fullDayHours = 8.8,
   halfDayHours = fullDayHours / 2;
 
+function hourFormat(time) {
+  const dur = moment.duration(time, 'hours');
+  const hours = Math.floor(dur.asHours());
+  const mins = Math.floor(dur.asMinutes()) - hours * 60;
+
+  return hours + ':' + mins;
+}
+
 //month call
 $.ajax({
   type: 'GET',
@@ -116,10 +124,14 @@ function calculateMonthlyHours(data) {
   // console.log('todayRequireHours: ', requireHours);
   // console.log('totalRequireHours: ', totalRequireHours);
   // console.log('currentHours: ', currentHours);
-  $('.cvh-current-hours').text(currentHours.toFixed(2));
-  $('.cvh-mean-hours').text(meanHours.toFixed(2));
-  $('.cvh-total-hours').text(totalRequireHours.toFixed(2));
-  $('.cvh-monthly-job-percent').text(jobPercent.toFixed(0) + '%');
+  $('.cvh-current-hours').text(hourFormat(currentHours));
+  $('.cvh-mean-hours').text(hourFormat(meanHours));
+  $('.cvh-total-hours').text(hourFormat(totalRequireHours));
+  $('.cvh-monthly-job-percent').text(hourFormat(jobPercent) + '%');
+  // $('.cvh-current-hours').text(currentHours.toFixed(2));
+  // $('.cvh-mean-hours').text(meanHours.toFixed(2));
+  // $('.cvh-total-hours').text(totalRequireHours.toFixed(2));
+  // $('.cvh-monthly-job-percent').text(jobPercent.toFixed(0) + '%');
 }
 
 function calculateQuarterHours(month) {
@@ -171,10 +183,13 @@ function calculateQuarterHours(month) {
     (bonusHours - currentHours) / (totalWorkingDays - currentWorkingDays);
   jobPercent = (currentHours / requireHours) * 100;
 
-  $('.cvh-quarter-total-hours').text(bonusHours.toFixed(2));
-  $('.cvh-quarter-current-hours').text(currentHours.toFixed(2));
-  $('.cvh-quarter-mean-hours').text(meanHours.toFixed(2));
-  // $('.cvh-quarter-job-percent').text(jobPercent.toFixed(2));
+  $('.cvh-quarter-total-hours').text(hourFormat(bonusHours));
+  $('.cvh-quarter-current-hours').text(hourFormat(currentHours));
+  $('.cvh-quarter-mean-hours').text(hourFormat(meanHours));
+  // $('.cvh-quarter-total-hours').text(bonusHours.toFixed(2));
+  // $('.cvh-quarter-current-hours').text(currentHours.toFixed(2));
+  // $('.cvh-quarter-mean-hours').text(meanHours.toFixed(2));
+  // // $('.cvh-quarter-job-percent').text(jobPercent.toFixed(2));
 }
 
 $('.full-height.desktop-main').prepend(
