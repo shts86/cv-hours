@@ -127,11 +127,10 @@ function calculateMonthlyHours(data) {
   $('.cvh-current-hours').text(hourFormat(currentHours));
   $('.cvh-mean-hours').text(hourFormat(meanHours));
   $('.cvh-total-hours').text(hourFormat(totalRequireHours));
-  $('.cvh-monthly-job-percent').text(hourFormat(jobPercent) + '%');
   // $('.cvh-current-hours').text(currentHours.toFixed(2));
   // $('.cvh-mean-hours').text(meanHours.toFixed(2));
   // $('.cvh-total-hours').text(totalRequireHours.toFixed(2));
-  // $('.cvh-monthly-job-percent').text(jobPercent.toFixed(0) + '%');
+  $('.cvh-monthly-job-percent').text(jobPercent.toFixed(0) + '%');
 }
 
 function calculateQuarterHours(month) {
