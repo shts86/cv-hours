@@ -8,7 +8,8 @@ report id:
 6- sickday
 */
 
-const token = JSON.parse(localStorage['TOKEN']).access_token;
+const tokenObj = localStorage['TOKEN'];
+const token = tokenObj && JSON.parse(tokenObj).access_token;
 const beginOfMonth = moment().startOf('month').format('YYYY-MM-DD');
 const endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
 const beginOfQuarter = moment().startOf('quarter').format('YYYY-MM-DD');
@@ -25,40 +26,40 @@ function hourFormat(time) {
 }
 
 //month call
-$.ajax({
-  type: 'GET',
-  url: `https://reportapi.codevalue.net/api/calendardays?fromDate=${beginOfMonth}&toDate=${endOfMonth}&includeEmptyDays=true&includeReports=true`,
-  headers: {
-    Authorization: 'Bearer ' + token,
-  },
-  dataType: 'json',
-  success: function (result, status, xhr) {
-    // console.log(result);
-    calculateMonthlyHours(result);
-  },
-  error: function (xhr, status, error) {
-    console.log('CHV EXTENSION - ERROR GET DATA - Massage:');
-    console.log(error);
-  },
-});
+token &&
+  $.ajax({
+    type: 'GET',
+    url: `https://reportapi.codevalue.net/api/calendardays?fromDate=${beginOfMonth}&toDate=${endOfMonth}&includeEmptyDays=true&includeReports=true`,
+    headers: {
+      Authorization: 'Bearer ' + token,
+    },
+    dataType: 'json',
+    success: function (result, status, xhr) {
+      // console.log(result);
+      calculateMonthlyHours(result);
+    },
+    error: function (xhr, status, error) {
+      console.error('CHV EXTENSION - ERROR GET DATA - Massage:', error);
+    },
+  });
 
 //quarter call
-$.ajax({
-  type: 'GET',
-  url: `https://reportapi.codevalue.net/api/calendardays?fromDate=${beginOfQuarter}&toDate=${endOfQuarter}&includeEmptyDays=true&includeReports=true`,
-  headers: {
-    Authorization: 'Bearer ' + token,
-  },
-  dataType: 'json',
-  success: function (result, status, xhr) {
-    // console.log(result);
-    calculateQuarterHours(result);
-  },
-  error: function (xhr, status, error) {
-    console.log('CHV EXTENSION - ERROR GET DATA - Massage:');
-    console.log(error);
-  },
-});
+token &&
+  $.ajax({
+    type: 'GET',
+    url: `https://reportapi.codevalue.net/api/calendardays?fromDate=${beginOfQuarter}&toDate=${endOfQuarter}&includeEmptyDays=true&includeReports=true`,
+    headers: {
+      Authorization: 'Bearer ' + token,
+    },
+    dataType: 'json',
+    success: function (result, status, xhr) {
+      // console.log(result);
+      calculateQuarterHours(result);
+    },
+    error: function (xhr, status, error) {
+      console.error('CHV EXTENSION - ERROR GET DATA - Massage:', error);
+    },
+  });
 
 function calculateMonthlyHours(data) {
   let totalRequireHours = 0,

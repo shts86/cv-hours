@@ -13,6 +13,7 @@
   "content_scripts": [
     {
       "matches": ["https://report.codevalue.net/*"],
+      "exclude_globs":["https://report.codevalue.net/#/login"],
       "css": ["cvh-styles.css"],
       "js": ["libs/jquery-3.6.0.min.js", "libs/moment.min.js", "content-script.js"]
     }
