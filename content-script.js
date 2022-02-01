@@ -129,7 +129,7 @@ function calculateMonthlyHours(data) {
   meanHours =
     (totalRequireHours - currentHours) /
     (totalWorkingDays - currentWorkingDays);
-  jobPercent = (currentHours / requireHours) * 100;
+  jobPercent = requireHours === 0 ? 100 : (currentHours / requireHours) * 100; // if first day of the month
 
   // console.log('todayRequireHours: ', requireHours);
   // console.log('totalRequireHours: ', totalRequireHours);
@@ -190,7 +190,7 @@ function calculateQuarterHours(month) {
   bonusHours = Math.min(bonus, totalRequireHours);
   meanHours =
     (bonusHours - currentHours) / (totalWorkingDays - currentWorkingDays);
-  jobPercent = (currentHours / requireHours) * 100;
+  jobPercent = requireHours === 0 ? 100 : (currentHours / requireHours) * 100; // if first day of the month
 
   $('.cvh-quarter-total-hours').text(hourFormat(bonusHours));
   $('.cvh-quarter-current-hours').text(hourFormat(currentHours));
