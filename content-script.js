@@ -1,6 +1,3 @@
-// 'use strict';
-// import 'moment/locale/he';
-// require('moment/locale/he');
 /*
 report id:
 1- hours report
