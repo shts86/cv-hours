@@ -15,9 +15,13 @@
       "matches": ["https://report.codevalue.net/*"],
       "exclude_globs":["https://report.codevalue.net/#/login"],
       "css": ["cvh-styles.css"],
-      "js": ["libs/jquery-3.6.0.min.js", "libs/moment.min.js", "content-script.js"]
+      "js": [ "libs/jquery-3.6.0.min.js", "libs/moment.min.js","libs/moments.locals.he.min.js", "content-script.js"]
     }
   ],
+  "web_accessible_resources": [{
+    "resources": ["images/refresh.png"],
+    "matches": [ "https://report.codevalue.net/*" ]
+  }],
   "icons": {
     "16": "/images/logo-cvh-16.png",
     "32": "/images/logo-cvh-32.png",

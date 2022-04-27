@@ -1,3 +1,6 @@
+// 'use strict';
+// import 'moment/locale/he';
+// require('moment/locale/he');
 /*
 report id:
 1- hours report
@@ -7,15 +10,20 @@ report id:
 5- resurve duty
 6- sickday
 */
-
+const momentHeb = moment().local('he');
 const tokenObj = localStorage['TOKEN'];
 const token = tokenObj && JSON.parse(tokenObj).access_token;
 const beginOfMonth = moment().startOf('month').format('YYYY-MM-DD');
 const endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
+const monthDisplay = momentHeb.format('MMMM');
 const beginOfQuarter = moment().startOf('quarter').format('YYYY-MM-DD');
 const endOfQuarter = moment().endOf('quarter').format('YYYY-MM-DD');
+const quarterDisplay = momentHeb.format('Q');
 const fullDayHours = 8.8,
   halfDayHours = fullDayHours / 2;
+const refreshImgSrc = chrome.runtime.getURL('images/refresh.png');
+let loadingMonth = false;
+let loadingQuarter = false;
 
 function hourFormat(time) {
   const dur = moment.duration(time, 'hours');
@@ -25,41 +33,49 @@ function hourFormat(time) {
   return hours + ':' + (mins < 10 ? '0' + mins : mins);
 }
 
-//month call
-token &&
-  $.ajax({
-    type: 'GET',
-    url: `https://reportapi.codevalue.net/api/calendardays?fromDate=${beginOfMonth}&toDate=${endOfMonth}&includeEmptyDays=true&includeReports=true`,
-    headers: {
-      Authorization: 'Bearer ' + token,
-    },
-    dataType: 'json',
-    success: function (result, status, xhr) {
-      // console.log(result);
-      calculateMonthlyHours(result);
-    },
-    error: function (xhr, status, error) {
-      console.error('CHV EXTENSION - ERROR GET DATA - Massage:', error);
-    },
-  });
+function fetchData() {
+  loadingMonth = true;
+  loadingQuarter = true;
+  //month call
+  token &&
+    $.ajax({
+      type: 'GET',
+      url: `https://reportapi.codevalue.net/api/calendardays?fromDate=${beginOfMonth}&toDate=${endOfMonth}&includeEmptyDays=true&includeReports=true`,
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+      dataType: 'json',
+      success: function (result, status, xhr) {
+        // console.log(result);
+        loadingMonth = false;
+        calculateMonthlyHours(result);
+      },
+      error: function (xhr, status, error) {
+        loadingMonth = false;
+        console.error('CHV EXTENSION - ERROR GET DATA - Massage:', error);
+      },
+    });
 
-//quarter call
-token &&
-  $.ajax({
-    type: 'GET',
-    url: `https://reportapi.codevalue.net/api/calendardays?fromDate=${beginOfQuarter}&toDate=${endOfQuarter}&includeEmptyDays=true&includeReports=true`,
-    headers: {
-      Authorization: 'Bearer ' + token,
-    },
-    dataType: 'json',
-    success: function (result, status, xhr) {
-      // console.log(result);
-      calculateQuarterHours(result);
-    },
-    error: function (xhr, status, error) {
-      console.error('CHV EXTENSION - ERROR GET DATA - Massage:', error);
-    },
-  });
+  //quarter call
+  token &&
+    $.ajax({
+      type: 'GET',
+      url: `https://reportapi.codevalue.net/api/calendardays?fromDate=${beginOfQuarter}&toDate=${endOfQuarter}&includeEmptyDays=true&includeReports=true`,
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+      dataType: 'json',
+      success: function (result, status, xhr) {
+        // console.log(result);
+        loadingQuarter = false;
+        calculateQuarterHours(result);
+      },
+      error: function (xhr, status, error) {
+        loadingQuarter = false;
+        console.error('CHV EXTENSION - ERROR GET DATA - Massage:', error);
+      },
+    });
+}
 
 function calculateMonthlyHours(data) {
   let totalRequireHours = 0,
@@ -141,6 +157,7 @@ function calculateMonthlyHours(data) {
   // $('.cvh-mean-hours').text(meanHours.toFixed(2));
   // $('.cvh-total-hours').text(totalRequireHours.toFixed(2));
   $('.cvh-monthly-job-percent').text(jobPercent.toFixed(0) + '%');
+  $('.cvh-display-month').text(monthDisplay + ':');
 }
 
 function calculateQuarterHours(month) {
@@ -195,16 +212,27 @@ function calculateQuarterHours(month) {
   $('.cvh-quarter-total-hours').text(hourFormat(bonusHours));
   $('.cvh-quarter-current-hours').text(hourFormat(currentHours));
   $('.cvh-quarter-mean-hours').text(hourFormat(meanHours));
+  $('.cvh-display-quarter').text('רבעון ' + quarterDisplay + ':');
+
   // $('.cvh-quarter-total-hours').text(bonusHours.toFixed(2));
   // $('.cvh-quarter-current-hours').text(currentHours.toFixed(2));
   // $('.cvh-quarter-mean-hours').text(meanHours.toFixed(2));
   // // $('.cvh-quarter-job-percent').text(jobPercent.toFixed(2));
 }
 
-$('.full-height.desktop-main').prepend(
-  $(`
+const handleRefresh = () => {
+  console.log('[CVH] refresh');
+  fetchData();
+};
+
+$('.full-height.desktop-main')
+  .prepend(
+    $(/*html*/ `
   <div class="cvh-wrap">
     <div class="cvh-wrap month-bg">
+    <div class="chv-cell">
+      <div class="cvh-title cvh-display-month"></div>
+    </div>
     <div class="chv-cell">
       <div class="cvh-title">דרישה חודשית:&nbsp;</div>
       <div class="cvh-total-hours"></div>
@@ -223,10 +251,13 @@ $('.full-height.desktop-main').prepend(
       </div>
     </div>
     <div class="cvh-wrap quarter-bg">
-    <div class="chv-cell">
-      <div class="cvh-title">דרישה רבעונית:&nbsp;</div>
-      <div class="cvh-quarter-total-hours"></div>
-    </div>
+      <div class="chv-cell">
+        <div class="cvh-title cvh-display-quarter"></div>
+      </div>
+      <div class="chv-cell">
+        <div class="cvh-title">דרישה רבעונית:&nbsp;</div>
+        <div class="cvh-quarter-total-hours"></div>
+      </div>
       <div class="chv-cell">
         <div class="cvh-title">שעות שנעשו הרבעון:&nbsp;</div>
         <div class="cvh-quarter-current-hours"></div>
@@ -236,5 +267,15 @@ $('.full-height.desktop-main').prepend(
         <div class="cvh-quarter-mean-hours"></div>
       </div>
     </div>
+    <div class="cvh-refresh">
+      <img class="cvh-refresh-image" src="${refreshImgSrc}" alt="refresh" title="refresh">
+    </div>
   </div>`)
-);
+  )
+  .ready(function () {
+    $('.cvh-refresh-image').click(function () {
+      handleRefresh();
+    });
+  });
+
+fetchData();

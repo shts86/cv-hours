@@ -1,6 +1,7 @@
 .cvh-wrap {
   display: flex;
   gap: 40px;
+  padding: 0 5px;
 }
 .chv-cell {
   display: flex;
@@ -16,5 +17,25 @@
   background-color: #ccddff;
 }
 .quarter-bg {
-  background-color: rgb(250, 231, 190);
+  background-color: rgb(150, 231, 190);
+}
+.cvh-refresh .cvh-refresh-image {
+  height: 20px;
+  cursor: pointer;
+}
+.cvh-refresh .cvh-refresh-image {
+  height: 20px;
+  cursor: pointer;
+}
+.cvh-refresh .cvh-refresh-image.cvh-spin {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
